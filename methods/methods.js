@@ -1,5 +1,7 @@
 import User from '../model/models.js';
 import bcryptjs from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+const jwtkey = "12345678"
 
 
 export const  signup = async(req,res)=>{
@@ -22,47 +24,65 @@ try {
         address,
         contact_number,
         password:  hashpassword
+
      })
-
      await newUser.save()
-     res.status(201).json({message:"User created successfully",newUser
+     jwt.sign({newUser}, jwtkey, { expiresIn: "2d" }, (error, token) => {
+        if(error){
+            return res.status(500).json({message: "Error sending token"});
+        }
+        res.status(201).json({message:"User Signup successfully",
+            name: newUser.name,
+            address: newUser.address,
+            contact_number: newUser.contact_number,
+            token: token
+        })
         
-     },)
-
-
-    
+    })
 } catch (error) {
     res.status(500).json({message:"Error creating user"})
 }
-
-
 } 
+
 
  export const login = async (req, res) => {
     try {
         const {name,password} = req.body;
-
         const user = await User.findOne({name});
         const  isMatch = await bcryptjs.compare(password, user.password)
          if(!user || !isMatch){
              return res.status(404).json({ message: 'User not found' })
          }
-         
-         res.status(200).json({ message: 'Logged in successfully',
-            user:{
-                _id:user._id,
-                name:user.name,
-                contact_number:user.contact_number,
-                address:user.address
-                
 
+         jwt.sign({id:user._id}, jwtkey, { expiresIn: "2d" }, (error, token) => {
+            if(error){
+                return res.status(400).json({message: "Error sending token"});
             }
-          })
-
-
+            res.cookie('token', token)  
+            res.status(200).json({ message: 'Logged in successfully'})
+          
+        })
 
     } catch (error) {
         res.status(500).json({ message: "Error logging in", error: error.message });
     }
-
 }
+
+export const logout = async (req, res) => {
+    try {
+      const token = req.cookies.token;
+  
+      if (!token) {
+        return res.status(400).json({ message: "No token found" });
+      }
+  
+      // Clear the token cookie
+      res.clearCookie('token');
+      
+      return res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      return res.status(500).json({ message: "Error logging out", error: error.message });
+    }
+  };
+  
