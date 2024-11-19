@@ -2,15 +2,14 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import useroutes from './route/routes.js'
-import User from './model/models.js'
-import dotenv from 'dotenv';
+
 import cookieParser from 'cookie-parser';
 
 
 
 
-dotenv.config()
-mongoose.connect('mongodb://localhost:27017/farming').then(()=>{
+
+mongoose.connect('mongodb+srv://yt781703:RvFdVIFxlRYLVL4x@farming.q7deves.mongodb.net/?retryWrites=true&w=majority&appName=farming').then(()=>{
     console.log("Connected to database",mongoose.connection.db.databaseName)
 }).catch(err=>{
     console.log("Error connecting to database",err)
@@ -20,14 +19,14 @@ mongoose.connect('mongodb://localhost:27017/farming').then(()=>{
 
 
 const app = express();
+app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://farming-project-git-main-yogeshtiwari12s-projects.vercel.app',
     credentials: true,
     
 }));
 
-app.use(express.json());
 
 app.use('/useroutes', useroutes)
 

@@ -58,7 +58,14 @@ try {
             if(error){
                 return res.status(400).json({message: "Error sending token"});
             }
-            res.cookie('token', token)  
+            res.cookie('token', token, {
+                //localhost ka code
+                secure: true, // Set to true since Render uses HTTPS
+                sameSite: 'None', // Allows cross-site cookies with HTTPS
+                // httpOnly: true,
+                secure: true, // Render uses HTTPS
+                sameSite: 'None',
+            });
             res.status(200).json({ message: 'Logged in successfully'})
           
         })
@@ -76,8 +83,15 @@ export const logout = async (req, res) => {
         return res.status(400).json({ message: "No token found" });
       }
   
-      // Clear the token cookie
-      res.clearCookie('token');
+     
+      res.clearCookie('token', {
+        // httpOnly: true,
+
+        secure: true,
+        sameSite: 'None',
+        path: '/'
+
+    });
       
       return res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
