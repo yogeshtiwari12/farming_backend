@@ -100,3 +100,18 @@ export const logout = async (req, res) => {
     }
   };
   
+
+  export const profile = async(req, res) => {
+    try {
+      const user = req.user;
+      if(!user){
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({ message: "User profile fetched successfully", user });
+    }
+    catch(error){
+        console.error("Profile error:", error);
+        return res.status(500).json({ message: "Error fetching user profile", error: error.message });
+    }
+    
+  }
